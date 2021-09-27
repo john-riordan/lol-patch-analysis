@@ -177,7 +177,7 @@ export function analyzePatchData(
       prevChamp.stats.wins / prevChamp.stats.games;
 
     const hasSpikedInPlayrate = playrateDiff >= 0.05;
-    const hasSpikedInWinrate = winrateDiff >= 0.04;
+    const hasSpikedInWinrate = winrateDiff >= 0.03;
 
     const champEntry = {
       ...champ,
