@@ -239,7 +239,8 @@ const lists = [
     transform: translate3d(0, 0, 0) scale(1);
     overflow: hidden;
     box-shadow: var(--highlight);
-    transition: var(--transition);
+    transition: background var(--transition),
+      box-shadow var(--transition);
 
     &:hover {
       background: hsla(var(--shade6-hsl) / 0.5);
