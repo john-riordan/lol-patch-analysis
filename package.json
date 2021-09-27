@@ -1,0 +1,19 @@
+{
+  "name": "@example/minimal",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview"
+  },
+  "devDependencies": {
+    "astro": "^0.20.7",
+    "prettier-plugin-astro": "^0.0.7"
+  },
+  "dependencies": {
+    "prettier": "^2.4.1"
+  },
+  "format": "yarn prettier -w ."
+}
