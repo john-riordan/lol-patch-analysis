@@ -1,18 +1,12 @@
 ---
-import ChampionGrid from '../components/ChampionGrid.svelte';
+import ChampionGrid from "../components/ChampionGrid.svelte";
 
 import {
   ENDPOINT_PATCHES,
   ENDPOINT_CHAMPIONS,
   ENDPOINT_CHAMP_REPORT,
-} from '../constants.js';
-import {
-  asPercent,
-  formatPatchVersion,
-  analyzePatchData,
-  prDiffColor,
-  wrDiffColor,
-} from '../helpers.js';
+} from "../constants.js";
+import { formatPatchVersion, analyzePatchData } from "../helpers.js";
 
 let champions;
 let patchLatest;
@@ -28,28 +22,19 @@ if (patches.data.length) {
   patchPrevious = patches.data[1];
 }
 
-const championsRes = await fetch(
-  ENDPOINT_CHAMPIONS(patchLatest.ddragon_version)
-);
+console.log(patchLatest);
+
+const championsRes = await fetch(ENDPOINT_CHAMPIONS(patchLatest.patch));
 const championsdata = await championsRes.json();
 
 if (championsdata?.data) {
   champions = championsdata.data;
 }
 
-const [reportLatestRes, reportPreviousRes] =
-  await Promise.all([
-    fetch(
-      ENDPOINT_CHAMP_REPORT(
-        formatPatchVersion(patchLatest.ddragon_version)
-      )
-    ),
-    fetch(
-      ENDPOINT_CHAMP_REPORT(
-        formatPatchVersion(patchPrevious.ddragon_version)
-      )
-    ),
-  ]);
+const [reportLatestRes, reportPreviousRes] = await Promise.all([
+  fetch(ENDPOINT_CHAMP_REPORT(formatPatchVersion(patchLatest.patch))),
+  fetch(ENDPOINT_CHAMP_REPORT(formatPatchVersion(patchPrevious.patch))),
+]);
 
 reportLatest = await reportLatestRes.json();
 reportPrevious = await reportPreviousRes.json();
@@ -62,50 +47,37 @@ if (reportPrevious.data) {
   reportPrevious = reportPrevious.data;
 }
 
-const {
-  newChamps,
-  playrateJumps,
-  winrateJumps,
-  bigMovers,
-} = analyzePatchData(
+const { newChamps, playrateJumps, winrateJumps, bigMovers } = analyzePatchData(
   champions,
   reportLatest,
   reportPrevious
 );
 const lists = [
   {
-    title: 'Play Rate *AND* Win Rate Movers',
-    type: 'both',
+    title: "Play Rate *AND* Win Rate Movers",
+    type: "both",
     entries: bigMovers,
   },
   {
-    title: 'Play Rate Movers',
-    type: 'playrate',
+    title: "Play Rate Movers",
+    type: "playrate",
     entries: playrateJumps,
   },
   {
-    title: 'Win Rate Movers',
-    type: 'winrate',
+    title: "Win Rate Movers",
+    type: "winrate",
     entries: winrateJumps,
   },
-  { title: '*New*', type: 'new', entries: newChamps },
+  { title: "*New*", type: "new", entries: newChamps },
 ];
 ---
 
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <link
-      rel="icon"
-      type="image/x-icon"
-      href="/favicon.ico" />
-    <link
-      rel="preconnect"
-      href="https://fonts.googleapis.com" />
-    <link
-      rel="preconnect"
-      href="https://fonts.gstatic.com"
-      crossorigin />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700&display=swap"
       rel="stylesheet" />
@@ -119,13 +91,13 @@ const lists = [
   <body>
     <header>
       <h1>
-        Comparing Patch {formatPatchVersion(patchLatest.ddragon_version)}
-        to {formatPatchVersion(patchPrevious.ddragon_version)}
+        Comparing Patch {formatPatchVersion(patchLatest.patch)}
+        to {formatPatchVersion(patchPrevious.patch)}
       </h1>
       <div class="game-counts">
         <div>
           <p class="type-overline">
-            {formatPatchVersion(patchLatest.ddragon_version)}
+            {formatPatchVersion(patchLatest.patch)}
           </p>
           <p class="type-body1">
             {patchLatest.games.toLocaleString()} Games
@@ -133,7 +105,7 @@ const lists = [
         </div>
         <div>
           <p class="type-overline">
-            {formatPatchVersion(patchPrevious.ddragon_version)}
+            {formatPatchVersion(patchPrevious.patch)}
           </p>
           <p class="type-body1">
             {patchPrevious.games.toLocaleString()} Games

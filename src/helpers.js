@@ -1,14 +1,15 @@
 export function asPercent(num) {
-  if (!num) return '!OOPS! asPercent';
-  return num.toLocaleString('en-US', {
-    style: 'percent',
+  if (!num) return "!OOPS! asPercent";
+  return num.toLocaleString("en-US", {
+    style: "percent",
     minimumFractionDigits: 1,
     maximumFractionDigits: 1,
   });
 }
 
 export function formatPatchVersion(patch) {
-  const p = patch.split('.');
+  if (!patch) return;
+  const p = patch.split(".");
   const major = p[0];
   const minor = p[1];
 
@@ -118,19 +119,16 @@ export function analyzePatchData(
   latestPatch = [],
   previousPatch = []
 ) {
-  const champs = Object.values(champions).reduce(
-    (acc, curr) => {
-      const { key, id, name, image } = curr;
-      acc[key] = {
-        id: key,
-        key: id,
-        name,
-        image: `https://blitz-cdn.blitz.gg/blitz/lol/champion/${id}.webp`,
-      };
-      return acc;
-    },
-    {}
-  );
+  const champs = Object.values(champions).reduce((acc, curr) => {
+    const { key, id, name, image } = curr;
+    acc[key] = {
+      id: key,
+      key: id,
+      name,
+      image: `https://blitz-cdn.blitz.gg/blitz/lol/champion/${id}.webp`,
+    };
+    return acc;
+  }, {});
   const latest = latestPatch.reduce((acc, curr) => {
     const key = `${curr.role}_${curr.champion_id}`;
     acc[key] = curr;
@@ -170,8 +168,7 @@ export function analyzePatchData(
     }
 
     const playrateDiff =
-      latestChamp.stats.role_percentage -
-      prevChamp.stats.role_percentage;
+      latestChamp.stats.role_percentage - prevChamp.stats.role_percentage;
     const winrateDiff =
       latestChamp.stats.wins / latestChamp.stats.games -
       prevChamp.stats.wins / prevChamp.stats.games;
@@ -185,13 +182,11 @@ export function analyzePatchData(
       playrateDiff,
       winrateDiff,
       latest: {
-        winrate:
-          latestChamp.stats.wins / latestChamp.stats.games,
+        winrate: latestChamp.stats.wins / latestChamp.stats.games,
         rolePercent: latestChamp.stats.role_percentage,
       },
       prev: {
-        winrate:
-          prevChamp.stats.wins / prevChamp.stats.games,
+        winrate: prevChamp.stats.wins / prevChamp.stats.games,
         rolePercent: prevChamp.stats.role_percentage,
       },
     };
@@ -214,9 +209,7 @@ export function analyzePatchData(
     playrateJumps: playrateJumps.sort(
       (a, z) => z.playrateDiff - a.playrateDiff
     ),
-    winrateJumps: winrateJumps.sort(
-      (a, z) => z.winrateDiff - a.winrateDiff
-    ),
+    winrateJumps: winrateJumps.sort((a, z) => z.winrateDiff - a.winrateDiff),
     bigMovers,
   };
 }
