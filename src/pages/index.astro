@@ -109,13 +109,13 @@ const lists = [
   <body>
     <!-- <header>
       <h1>
-        Comparing Patch {formatPatchVersion(patchLatest.ddragon_version)}
-        to {formatPatchVersion(patchPrevious.ddragon_version)}
+        Comparing Patch {formatPatchVersion(patchLatest.patch)}
+        to {formatPatchVersion(patchPrevious.patch)}
       </h1>
       <div class="game-counts">
         <div>
           <p class="type-overline">
-            {formatPatchVersion(patchLatest.ddragon_version)}
+            {formatPatchVersion(patchLatest.patch)}
           </p>
           <p class="type-body1">
             {patchLatest.games.toLocaleString()} Games
@@ -123,7 +123,7 @@ const lists = [
         </div>
         <div>
           <p class="type-overline">
-            {formatPatchVersion(patchPrevious.ddragon_version)}
+            {formatPatchVersion(patchPrevious.patch)}
           </p>
           <p class="type-body1">
             {patchPrevious.games.toLocaleString()} Games

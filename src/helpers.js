@@ -16,6 +16,7 @@ export function asDecimal(num, precision = 1) {
 }
 
 export function formatPatchVersion(patch) {
+  if (!patch) return;
   const p = patch.split('.');
   const major = p[0];
   const minor = p[1];
@@ -134,14 +135,14 @@ export function analyzePatchData(champions = {}, allReports = []) {
   }, {});
 
   const currentReport = allReports[0];
-  const prevReports = allReports[1];
+  const prevReport = allReports[1];
 
   const latest = currentReport.reduce((acc, curr) => {
     const key = `${curr.role}_${curr.champion_id}`;
     acc[key] = curr;
     return acc;
   }, {});
-  const previous = prevReports.reduce((acc, curr) => {
+  const previous = prevReport.reduce((acc, curr) => {
     const key = `${curr.role}_${curr.champion_id}`;
     acc[key] = curr;
     return acc;
