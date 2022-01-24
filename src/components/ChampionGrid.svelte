@@ -1,9 +1,5 @@
 <script>
-  import {
-  asPercent,
-  prDiffColor,
-  wrDiffColor,
-} from '../helpers.js';
+  import { asPercent, prDiffColor, wrDiffColor } from '../helpers.js';
 
   export let data;
 
@@ -15,69 +11,81 @@
     { key: 'JUNGLE', name: 'Jungle' },
     { key: 'MID', name: 'Mid' },
     { key: 'ADC', name: 'ADC' },
-    { key: 'SUPPORT', name: 'Support' }
-  ]
+    { key: 'SUPPORT', name: 'Support' },
+  ];
 
+  console.log(data[1].entries);
 </script>
 
 <nav class="filter">
   {#each roles as role}
-    <button on:click={() => selectedRole = role.key} class="type-form--tab" class:active={role.key === selectedRole}>{role.name}</button>
+    <button
+      on:click={() => (selectedRole = role.key)}
+      class="type-form--tab"
+      class:active={role.key === selectedRole}>{role.name}</button
+    >
   {/each}
 </nav>
 
 <div class="lists">
   {#each data as list}
     {#if list.entries.filter(c => selectedRole === 'ALL' || c.role === selectedRole)?.length}
-    <div>
-      <h4 class='type-subtitle1 title'>{list.title}</h4>
-      <ol class='entries' data-list-type={list.type}>
-        {#each list.entries.filter(c => selectedRole === 'ALL' || c.role === selectedRole) as champion, index}
-          <li class='entry'>
-            <h4 class='index'>#{index + 1}</h4>
-            <div class='img'>
-              <img src={champion.image} alt="" height='40' width='40' />
-            </div>
-            <div class='info'>
-              <p class='type-overline role'>
-                {champion.role}
-              </p>
-              <p class='type-h6 name'>
-                {champion.name}
-              </p>
-              {#if champion.playrateDiff}
-              <div class='stats' data-wr-gain={champion.winrateDiff > 0 && 'true'} data-pr-gain={champion.playrateDiff > 0 && 'true'}>
-                <div class='playrate' style={`--diff: ${prDiffColor(champion.playrateDiff)}`}>
-                  <span class='type-overline'>
-                    Role %
-                  </span>
-                  <p class='type-h6'>
-                    {asPercent(champion.latest.rolePercent)} <span class='type-caption--bold super'>
-                      {asPercent(champion.playrateDiff)}
-                    </span>
-                  </p>
-                </div>
-                <div class='winrate' style={`--diff: ${wrDiffColor(champion.winrateDiff)}`}>
-                  <span class='type-overline'>
-                    Win-rate
-                  </span>
-                  <p class='type-h6'>
-                    {asPercent(champion.latest.winrate)} <span class='type-caption--bold super'>
-                      {asPercent(champion.winrateDiff)}
-                    </span>
-                  </p>
-                </div>
+      <div>
+        <h4 class="type-subtitle1 title">{list.title}</h4>
+        <ol class="entries" data-list-type={list.type}>
+          {#each list.entries.filter(c => selectedRole === 'ALL' || c.role === selectedRole) as champion, index}
+            <li class="entry">
+              <h4 class="index">#{index + 1}</h4>
+              <div class="img">
+                <img src={champion.image} alt="" height="40" width="40" />
               </div>
-              {/if}
-            </div>
-          </li> 
-        {/each}
-      </ol>
-    </div>
+              <div class="info">
+                <p class="type-overline role">
+                  {champion.role}
+                </p>
+                <p class="type-h6 name">
+                  {champion.name}
+                </p>
+                {#if champion.playrateDiff}
+                  <div
+                    class="stats"
+                    data-wr-gain={champion.winrateDiff > 0 && 'true'}
+                    data-pr-gain={champion.playrateDiff > 0 && 'true'}
+                  >
+                    <div
+                      class="playrate"
+                      style={`--diff: ${prDiffColor(champion.playrateDiff)}`}
+                    >
+                      <span class="type-overline"> Play-Rate % </span>
+                      <p class="type-h6">
+                        {asPercent(champion.latest.playrate)}
+                        <span class="type-caption--bold super">
+                          {asPercent(champion.playrateDiff)}
+                        </span>
+                      </p>
+                    </div>
+                    <div
+                      class="winrate"
+                      style={`--diff: ${wrDiffColor(champion.winrateDiff)}`}
+                    >
+                      <span class="type-overline"> Win-rate </span>
+                      <p class="type-h6">
+                        {asPercent(champion.latest.winrate)}
+                        <span class="type-caption--bold super">
+                          {asPercent(champion.winrateDiff)}
+                        </span>
+                      </p>
+                    </div>
+                  </div>
+                {/if}
+              </div>
+            </li>
+          {/each}
+        </ol>
+      </div>
     {/if}
   {/each}
 </div>
-
 
 <style lang="scss">
   .filter {
@@ -88,7 +96,7 @@
       background: transparent;
       border: none;
       color: var(--shade2);
-      font-family: Inter,Arial,Helvetica,sans-serif;
+      font-family: Inter, Arial, Helvetica, sans-serif;
       height: var(--sp-11);
       min-width: 7ch;
       padding: 0 var(--sp-3);
@@ -103,7 +111,7 @@
         border-radius: var(--br);
 
         &::after {
-          content: "";
+          content: '';
           position: absolute;
           bottom: 0;
           left: 50%;
@@ -140,10 +148,7 @@
     gap: var(--gap);
 
     @media screen and (max-width: 1000px) {
-      grid-template-columns: repeat(
-      auto-fit,
-      minmax(320px, 1fr)
-    );
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
     }
   }
 
@@ -158,13 +163,11 @@
     transform: translate3d(0, 0, 0) scale(1);
     overflow: hidden;
     box-shadow: var(--highlight);
-    transition: background var(--transition),
-      box-shadow var(--transition);
+    transition: background var(--transition), box-shadow var(--transition);
 
     &:hover {
       background: hsla(var(--shade6-hsl) / 0.5);
-      box-shadow: var(--highlight),
-        0 0 20px 5px var(--shade10);
+      box-shadow: var(--highlight), 0 0 20px 5px var(--shade10);
     }
 
     .index {

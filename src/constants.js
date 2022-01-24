@@ -1,13 +1,13 @@
 export const ENDPOINT_PATCHES =
-  "https://league-champion-aggregate.iesdev.com/api/patches";
-export const ENDPOINT_CHAMPIONS = (patch) => {
-  return `http://ddragon.leagueoflegends.com/cdn/${patch}/data/en_US/champion.json`;
+  'https://league-champion-aggregate.iesdev.com/api/patches';
+export const ENDPOINT_CHAMPIONS = patch => {
+  return `http://ddragon.leagueoflegends.com/cdn/${patch}.1/data/en_US/champion.json`;
 };
-export const ENDPOINT_CHAMP_REPORT = (patch) => {
+export const ENDPOINT_CHAMP_REPORT = patch => {
   const params = {
-    region: "world",
+    region: 'world',
     queue: 420,
-    tier: "PLATINUM_PLUS",
+    tier: 'PLATINUM_PLUS',
     is_filtered_by_role: false,
     patch: patch,
   };

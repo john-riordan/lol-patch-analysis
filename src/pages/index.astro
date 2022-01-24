@@ -1,12 +1,12 @@
 ---
-import ChampionGrid from "../components/ChampionGrid.svelte";
-import ChampionsList from "../components/ChampionsList.svelte";
+import ChampionGrid from '../components/ChampionGrid.svelte';
+import ChampionsList from '../components/ChampionsList.svelte';
 
 import {
   ENDPOINT_PATCHES,
   ENDPOINT_CHAMPIONS,
   ENDPOINT_CHAMP_REPORT,
-} from "../constants.js";
+} from '../constants.js';
 import {
   asPercent,
   formatPatchVersion,
@@ -14,7 +14,7 @@ import {
   prDiffColor,
   wrDiffColor,
   buildChampionsList,
-} from "../helpers.js";
+} from '../helpers.js';
 
 let champions;
 let patchLatest;
@@ -33,12 +33,10 @@ if (patches.data.length) {
   patchLatest = patches.data[0];
   patchPrevious = patches.data[1];
 
-  patchlist = patches.data.map((patch) => patch.ddragon_version);
+  patchlist = patches.data.map(patch => formatPatchVersion(patch.patch));
 }
 
-const championsRes = await fetch(
-  ENDPOINT_CHAMPIONS(patchLatest.ddragon_version)
-);
+const championsRes = await fetch(ENDPOINT_CHAMPIONS(patchLatest.patch));
 const championsdata = await championsRes.json();
 
 if (championsdata?.data) {
@@ -46,11 +44,11 @@ if (championsdata?.data) {
 }
 
 const [p1, p2, p3, p4, p5] = await Promise.all([
-  fetch(ENDPOINT_CHAMP_REPORT(formatPatchVersion(patchlist[0]))),
-  fetch(ENDPOINT_CHAMP_REPORT(formatPatchVersion(patchlist[1]))),
-  fetch(ENDPOINT_CHAMP_REPORT(formatPatchVersion(patchlist[2]))),
-  fetch(ENDPOINT_CHAMP_REPORT(formatPatchVersion(patchlist[3]))),
-  fetch(ENDPOINT_CHAMP_REPORT(formatPatchVersion(patchlist[4]))),
+  fetch(ENDPOINT_CHAMP_REPORT(patchlist[0])),
+  fetch(ENDPOINT_CHAMP_REPORT(patchlist[1])),
+  fetch(ENDPOINT_CHAMP_REPORT(patchlist[2])),
+  fetch(ENDPOINT_CHAMP_REPORT(patchlist[3])),
+  fetch(ENDPOINT_CHAMP_REPORT(patchlist[4])),
 ]);
 
 report1 = await p1.json();
@@ -66,7 +64,30 @@ const reports = [
   report4?.data,
   report5?.data,
 ].filter(Boolean);
-const formattedReports = buildChampionsList(champions, reports);
+const data = buildChampionsList(champions, reports, patchlist);
+
+const { newChamps, playrateJumps, winrateJumps, bigMovers } = analyzePatchData(
+  champions,
+  reports
+);
+const lists = [
+  {
+    title: 'Play Rate *AND* Win Rate Movers',
+    type: 'both',
+    entries: bigMovers,
+  },
+  {
+    title: 'Play Rate Movers',
+    type: 'playrate',
+    entries: playrateJumps,
+  },
+  {
+    title: 'Win Rate Movers',
+    type: 'winrate',
+    entries: winrateJumps,
+  },
+  { title: '*New*', type: 'new', entries: newChamps },
+];
 ---
 
 <html lang="en">
@@ -86,7 +107,7 @@ const formattedReports = buildChampionsList(champions, reports);
   </head>
 
   <body>
-    <header>
+    <!-- <header>
       <h1>
         Comparing Patch {formatPatchVersion(patchLatest.ddragon_version)}
         to {formatPatchVersion(patchPrevious.ddragon_version)}
@@ -109,9 +130,9 @@ const formattedReports = buildChampionsList(champions, reports);
           </p>
         </div>
       </div>
-    </header>
-    <ChampionsList data={formattedReports} client:idle />
-    <!-- <ChampionGrid data={lists} client:idle /> -->
+    </header> -->
+    <!-- <ChampionsList {data} client:idle /> -->
+    <ChampionGrid data={lists} client:idle />
   </body>
 </html>
 
