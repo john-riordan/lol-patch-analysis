@@ -1,6 +1,5 @@
 ---
 import ChampionGrid from '../components/ChampionGrid.svelte';
-import ChampionsList from '../components/ChampionsList.svelte';
 
 import {
   ENDPOINT_PATCHES,
@@ -15,6 +14,7 @@ import {
   wrDiffColor,
   buildChampionsList,
 } from '../helpers.js';
+import { GQL_URL, QUERY_AGG_STATS, requestPatchData } from '../api.js';
 
 let champions;
 let patchLatest;
@@ -22,9 +22,6 @@ let patchlist = [];
 let patchPrevious;
 let report1;
 let report2;
-let report3;
-let report4;
-let report5;
 
 const patchesRes = await fetch(ENDPOINT_PATCHES);
 const patches = await patchesRes.json();
@@ -43,32 +40,26 @@ if (championsdata?.data) {
   champions = championsdata.data;
 }
 
-const [p1, p2, p3, p4, p5] = await Promise.all([
+const [p1, p2] = await Promise.all([
   fetch(ENDPOINT_CHAMP_REPORT(patchlist[0])),
   fetch(ENDPOINT_CHAMP_REPORT(patchlist[1])),
-  fetch(ENDPOINT_CHAMP_REPORT(patchlist[2])),
-  fetch(ENDPOINT_CHAMP_REPORT(patchlist[3])),
-  fetch(ENDPOINT_CHAMP_REPORT(patchlist[4])),
 ]);
 
 report1 = await p1.json();
 report2 = await p2.json();
-report3 = await p3.json();
-report4 = await p4.json();
-report5 = await p5.json();
+const reports = [report1?.data, report2?.data].filter(Boolean);
 
-const reports = [
-  report1?.data,
-  report2?.data,
-  report3?.data,
-  report4?.data,
-  report5?.data,
-].filter(Boolean);
-const data = buildChampionsList(champions, reports, patchlist);
+const currPatchData = await fetch(GQL_URL, requestPatchData(patchLatest.patch));
+const prevPatchData = await fetch(
+  GQL_URL,
+  requestPatchData(patchPrevious.patch)
+);
+const currPatchRes = await currPatchData.json();
+const preventPatchRes = await prevPatchData.json();
 
 const { newChamps, playrateJumps, winrateJumps, bigMovers } = analyzePatchData(
   champions,
-  reports
+  [currPatchRes?.data.allChampionStats, preventPatchRes?.data.allChampionStats]
 );
 const lists = [
   {
@@ -107,32 +98,23 @@ const lists = [
   </head>
 
   <body>
-    <!-- <header>
-      <h1>
-        Comparing Patch {formatPatchVersion(patchLatest.patch)}
-        to {formatPatchVersion(patchPrevious.patch)}
-      </h1>
-      <div class="game-counts">
-        <div>
-          <p class="type-overline">
-            {formatPatchVersion(patchLatest.patch)}
-          </p>
-          <p class="type-body1">
-            {patchLatest.games.toLocaleString()} Games
-          </p>
-        </div>
-        <div>
-          <p class="type-overline">
-            {formatPatchVersion(patchPrevious.patch)}
-          </p>
-          <p class="type-body1">
-            {patchPrevious.games.toLocaleString()} Games
-          </p>
-        </div>
+    <div class="game-counts">
+      <div>
+        <p class="type-h4">Patch {patchLatest.patch}</p>
+        <span class="type-caption games"
+          >{patchLatest.games.toLocaleString()}</span>
       </div>
-    </header> -->
-    <!-- <ChampionsList {data} client:idle /> -->
-    <ChampionGrid data={lists} client:idle />
+      <span class="vs">vs</span>
+      <div>
+        <p class="type-h4">Patch {patchPrevious.patch}</p>
+        <span class="type-caption games"
+          >{patchPrevious.games.toLocaleString()}</span>
+      </div>
+    </div>
+    <ChampionGrid
+      data={lists}
+      gqlData={currPatchRes?.data.allChampionStats}
+      client:idle />
   </body>
 </html>
 
@@ -154,8 +136,16 @@ const lists = [
 
   .game-counts {
     display: flex;
+    align-items: center;
     gap: 2rem;
-    margin-top: 1rem;
-    color: var(--shade2);
+    margin-bottom: 2rem;
+
+    .games {
+      color: var(--shade2);
+    }
+
+    .vs {
+      color: var(--shade3);
+    }
   }
 </style>

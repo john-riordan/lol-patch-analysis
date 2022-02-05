@@ -138,12 +138,12 @@ export function analyzePatchData(champions = {}, allReports = []) {
   const prevReport = allReports[1];
 
   const latest = currentReport.reduce((acc, curr) => {
-    const key = `${curr.role}_${curr.champion_id}`;
+    const key = `${curr.role}_${curr.championId}`;
     acc[key] = curr;
     return acc;
   }, {});
   const previous = prevReport.reduce((acc, curr) => {
-    const key = `${curr.role}_${curr.champion_id}`;
+    const key = `${curr.role}_${curr.championId}`;
     acc[key] = curr;
     return acc;
   }, {});
@@ -154,16 +154,15 @@ export function analyzePatchData(champions = {}, allReports = []) {
   const bigMovers = [];
 
   for (const champion of currentReport) {
-    const key = `${champion.role}_${champion.champion_id}`;
-    const champ = champs[champion.champion_id];
+    const key = `${champion.role}_${champion.championId}`;
+    const champ = champs[champion.championId];
     const latestChamp = champion;
     const prevChamp = previous[key];
 
-    // Minimum of 200 games
-    if (latestChamp.stats.games <= 200) continue;
+    if (latestChamp.pickRate < 0.005 || latestChamp.games < 50) continue;
 
-    const playrate = latestChamp.stats.games / latestChamp.total_game_count;
-    const winrate = latestChamp.stats.wins / latestChamp.stats.games;
+    const playrate = latestChamp.pickRate;
+    const winrate = latestChamp.wins / latestChamp.games;
 
     if (!prevChamp) {
       newChamps.push({
@@ -177,12 +176,11 @@ export function analyzePatchData(champions = {}, allReports = []) {
       continue;
     }
 
-    const playrateDiff =
-      playrate - prevChamp.stats.games / prevChamp.total_game_count;
-    const winrateDiff = winrate - prevChamp.stats.wins / prevChamp.stats.games;
+    const playrateDiff = playrate - prevChamp.pickRate;
+    const winrateDiff = winrate - prevChamp.wins / prevChamp.games;
 
-    const hasSpikedInPlayrate = playrateDiff >= 0.02;
-    const hasSpikedInWinrate = winrateDiff >= 0.02;
+    const hasSpikedInPlayrate = playrateDiff >= 0.075;
+    const hasSpikedInWinrate = winrateDiff >= 0.03;
 
     const champEntry = {
       ...champ,
@@ -194,8 +192,8 @@ export function analyzePatchData(champions = {}, allReports = []) {
         playrate,
       },
       prev: {
-        winrate: prevChamp.stats.wins / prevChamp.stats.games,
-        playrate: latestChamp.stats.games / latestChamp.total_game_count,
+        winrate: prevChamp.wins / prevChamp.games,
+        playrate: latestChamp.games / latestChamp.totalGameCount,
       },
     };
 
@@ -203,7 +201,7 @@ export function analyzePatchData(champions = {}, allReports = []) {
       playrateJumps.push(champEntry);
     }
 
-    if (hasSpikedInWinrate && winrate >= 0.5) {
+    if (hasSpikedInWinrate && winrate >= 0.49) {
       winrateJumps.push(champEntry);
     }
 
@@ -220,97 +218,4 @@ export function analyzePatchData(champions = {}, allReports = []) {
     winrateJumps: winrateJumps.sort((a, z) => z.winrateDiff - a.winrateDiff),
     bigMovers,
   };
-}
-
-export function buildChampionsList(
-  champions = {},
-  allReports = [],
-  patchlist = []
-) {
-  const champs = Object.values(champions).reduce((acc, curr) => {
-    const { key, id, name, image } = curr;
-    acc[key] = {
-      id: key,
-      key: id,
-      name,
-      image: `https://blitz-cdn.blitz.gg/blitz/lol/champion/${id}.webp`,
-    };
-    return acc;
-  }, {});
-
-  const currentReport = allReports[0];
-  const prevReports = allReports.slice(1);
-
-  const lowest = {};
-  const highest = {};
-
-  const champList = [];
-
-  for (const champion of currentReport) {
-    const { stats, champion_id, role, total_game_count } = champion;
-    const champInfo = champs[champion_id];
-
-    if (stats.games < 50 || stats.role_percentage < 0.03) continue;
-
-    const patches = [];
-    patches.push({
-      patch: champion.patch,
-      rolePercent: stats.role_percentage,
-      kda: (stats.kills + stats.assists) / stats.deaths,
-      games: stats.games,
-      wins: stats.wins,
-      laneWins: stats.lane_wins,
-      winrate: stats.wins / stats.games,
-      laneWinrate: stats.lane_wins / stats.games,
-      playrate: stats.games / total_game_count,
-    });
-
-    for (const [index, report] of prevReports.entries()) {
-      const patchNum = patchlist[index + 1];
-      const prevChamp = report.find(
-        c => c.champion_id === champion_id && c.role === role
-      );
-
-      if (prevChamp) {
-        const { stats, total_game_count } = prevChamp;
-        patches.push({
-          patch: patchNum,
-          rolePercent: stats.role_percentage,
-          kda: (stats.kills + stats.assists) / stats.deaths,
-          games: stats.games,
-          wins: stats.wins,
-          laneWins: stats.lane_wins,
-          winrate: stats.wins / stats.games,
-          laneWinrate: stats.lane_wins / stats.games,
-          playrate: stats.games / total_game_count,
-        });
-      } else {
-        patches.push({
-          patch: patchNum,
-        });
-      }
-    }
-
-    for (const patch of patches) {
-      for (const key in patch) {
-        if (key === 'patch') continue;
-
-        const val = patch[key];
-        if (!lowest[key]) lowest[key] = val;
-        if (!highest[key]) highest[key] = val;
-
-        if (val < lowest[key]) lowest[key] = val;
-        if (val > highest[key]) highest[key] = val;
-      }
-    }
-
-    champList.push({
-      champInfo,
-      champion_id,
-      role,
-      patches,
-    });
-  }
-
-  return { champList, bounds: { lowest, highest } };
 }

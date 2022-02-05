@@ -13,15 +13,12 @@
     { key: 'ADC', name: 'ADC' },
     { key: 'SUPPORT', name: 'Support' },
   ];
-
-  console.log(data[1].entries);
 </script>
 
 <nav class="filter">
   {#each roles as role}
     <button
       on:click={() => (selectedRole = role.key)}
-      class="type-form--tab"
       class:active={role.key === selectedRole}>{role.name}</button
     >
   {/each}
@@ -96,7 +93,6 @@
       background: transparent;
       border: none;
       color: var(--shade2);
-      font-family: Inter, Arial, Helvetica, sans-serif;
       height: var(--sp-11);
       min-width: 7ch;
       padding: 0 var(--sp-3);
@@ -104,11 +100,11 @@
 
       &:hover {
         color: var(--shade0);
+        background: hsla(var(--shade5-hsl) / 0.15);
       }
       &.active {
         color: var(--shade0);
         background: hsla(var(--shade5-hsl) / 0.25);
-        border-radius: var(--br);
 
         &::after {
           content: '';
@@ -119,7 +115,6 @@
           width: var(--sp-6);
           height: 2px;
           background: var(--primary);
-          border-radius: var(--br-sm) var(--br-sm) 0 0;
           transform: translateX(-50%);
         }
       }
@@ -158,16 +153,14 @@
     align-items: flex-start;
     padding: var(--sp-5);
     padding-right: var(--sp-10);
-    background: var(--shade7);
-    border-radius: var(--br);
+    background: var(--shade8);
     transform: translate3d(0, 0, 0) scale(1);
     overflow: hidden;
-    box-shadow: var(--highlight);
     transition: background var(--transition), box-shadow var(--transition);
 
     &:hover {
       background: hsla(var(--shade6-hsl) / 0.5);
-      box-shadow: var(--highlight), 0 0 20px 5px var(--shade10);
+      box-shadow: 0 0 20px 5px var(--shade10);
     }
 
     .index {
@@ -182,7 +175,6 @@
     .img {
       position: relative;
       margin-right: var(--sp-4);
-      border-radius: var(--br);
       width: 40px;
       aspect-ratio: 1;
       overflow: hidden;
